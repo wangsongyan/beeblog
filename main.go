@@ -1,10 +1,11 @@
 package main
 
 import (
+	"beeblog/models"
+	_ "beeblog/routers"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/wangsongyan/beeblog/models"
-	_ "github.com/wangsongyan/beeblog/routers"
+	"time"
 )
 
 func init() {
@@ -14,6 +15,8 @@ func init() {
 func main() {
 
 	orm.Debug = true
+	//orm.DefaultTimeLoc, _ = time.LoadLocation("Asia/Shanghai") //time.UTC //time.Local
+	orm.DefaultTimeLoc = time.UTC
 	orm.RunSyncdb("default", false, true)
 	beego.Run()
 }

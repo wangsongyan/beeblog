@@ -123,6 +123,15 @@
       </div>
       {{template "test"}}
   </footer>
+
+{{"string"}} // 一般 string
+{{`raw string`}} // 原始 string
+{{'c'}} // byte
+{{print nil}} // nil 也被支持
+
+  <script type="text/javascript">
+      var data = {{print .Categoris}};
+  </script>
   <div class="backdrop"></div>
 </body>
 </html>

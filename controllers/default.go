@@ -1,8 +1,17 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego"
 )
+
+type Entity struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
+	Name  string `json:"name"`
+	Index int    `json:"index"`
+}
 
 type MainController struct {
 	beego.Controller
@@ -35,5 +44,22 @@ func (c *MainController) Get() {
 	c.Data["TplVar"] = "hey guys"
 	c.Data["Html"] = "<div>Hello beego</div>"
 	c.Data["Pipe"] = "<div>Hello beego</div>"
+
+	cates := make([]Entity, 0)
+	for i := 0; i < 10; i++ {
+		cate := Entity{
+			Title: "test",
+			Index: i,
+		}
+		cates = append(cates, cate)
+	}
+	fmt.Println(cates)
+	jsonstr, err := json.Marshal(cates)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(jsonstr))
+	c.Data["Categoris"] = string(jsonstr)
 
 }
