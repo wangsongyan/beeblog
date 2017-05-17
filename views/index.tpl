@@ -131,6 +131,7 @@
 
   <script type="text/javascript">
       var data = {{print .Categoris}};
+      var data1 = {{.sbztmc}};
   </script>
   <div class="backdrop"></div>
 </body>

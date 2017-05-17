@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
+	"html/template"
 )
 
 type Entity struct {
@@ -59,7 +60,9 @@ func (c *MainController) Get() {
 		fmt.Println(err)
 	}
 
-	fmt.Println(string(jsonstr))
-	c.Data["Categoris"] = string(jsonstr)
+	fmt.Println(template.JS(string(jsonstr)))
+	c.Data["Categoris"] = template.JS(string(jsonstr))
+
+	c.Data["sbztmc"] = template.JS(`["","mc1","mc2","mc3","mc4"]`)
 
 }
