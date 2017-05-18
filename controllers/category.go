@@ -20,7 +20,7 @@ func (this *CategoryController) Get() {
 		}
 		err := models.AddCategory(name)
 		if err != nil {
-			beego.Debug(err)
+			beego.Error(err)
 		}
 		this.Redirect("/category", 302)
 		return
@@ -31,7 +31,7 @@ func (this *CategoryController) Get() {
 		}
 		err := models.DeleteCategory(id)
 		if err != nil {
-			beego.Debug(err)
+			beego.Error(err)
 		}
 		this.Redirect("/category", 302)
 		return
@@ -44,6 +44,6 @@ func (this *CategoryController) Get() {
 	var err error
 	this.Data["Categories"], err = models.GetAllCategories()
 	if err != nil {
-		beego.Debug(err)
+		beego.Error(err)
 	}
 }
