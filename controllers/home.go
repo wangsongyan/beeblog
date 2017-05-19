@@ -22,12 +22,12 @@ func (c *HomeController) Get() {
 	c.TplName = "home.html"
 
 	categories, err := models.GetAllCategories()
-	for _, category := range categories {
-		count, err := models.CountTopicByCategory(category.Title)
-		if err == nil {
-			category.TopicCount = count
-		}
-	}
+	// for _, category := range categories {
+	// 	count, err := models.CountTopicByCategory(category.Title)
+	// 	if err == nil {
+	// 		category.TopicCount = count
+	// 	}
+	// }
 
 	if err != nil {
 		beego.Error(err)

@@ -115,6 +115,18 @@ func AddTopic(title, category, content string) error {
 	}
 
 	_, err := o.Insert(topic)
+	if err != nil {
+		return err
+	}
+
+	// 分类文章数量修改
+	cate := new(Category)
+	qs := o.QueryTable("category")
+	err = qs.Filter("title", category).One(cate)
+	if err == nil {
+		cate.TopicCount++
+		_, err = o.Update(cate)
+	}
 	return err
 }
 
@@ -125,16 +137,11 @@ func GetAllTopics(isDesc bool, cate string) ([]*Topic, error) {
 	var err error
 	if isDesc {
 		if len(cate) > 0 {
-			_, err = qs.Filter("category", cate).OrderBy("-created").All(&topics)
-		} else {
-			_, err = qs.OrderBy("-created").All(&topics)
+			qs = qs.Filter("category", cate)
 		}
+		_, err = qs.OrderBy("-created").All(&topics)
 	} else {
-		if len(cate) > 0 {
-			_, err = qs.Filter("category", cate).All(&topics)
-		} else {
-			_, err = qs.All(&topics)
-		}
+		_, err = qs.All(&topics)
 	}
 
 	return topics, err
@@ -200,11 +207,23 @@ func DeleteTopic(id string) error {
 	topic := &Topic{
 		Id: tid,
 	}
+	var cate string
+	if err = o.Read(topic); err == nil {
+		cate = topic.Category
+	}
 	_, err = o.Delete(topic)
 	if err != nil {
 		return err
 	}
-	return nil
+	category := new(Category)
+	err = o.QueryTable("category").Filter("title", cate).One(category)
+	if err == nil {
+		if category.TopicCount > 1 {
+			category.TopicCount--
+			_, err = o.Update(category)
+		}
+	}
+	return err
 }
 
 //
