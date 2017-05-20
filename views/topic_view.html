@@ -9,8 +9,19 @@
 	</div>
 
 	<div class="container">
-		<h1>{{.Topic.Title}}<a href="/topic/modify/{{.Tid}}" class="btn btn-default">修改文章</a></h1>
-		<p>{{.Topic.Content}}</p>
+		{{$label := .Labels}}
+		{{with .Topic}}
+		<h1>{{.Title}}<small><a href="/?cate={{.Category}}">{{.Category}}</a></small></h1>
+		<h5>
+		{{range $label}}
+			<a href="/?label={{.}}">{{.}}</a>
+		{{end}}
+		</h5>
+		<p>{{.Content}}</p>
+		<h5>
+			<a href="/attachment/{{.Attachment}}">{{.Attachment}}</a>
+		</h5>
+		{{end}}
 	</div>
 
 	<div class="container">

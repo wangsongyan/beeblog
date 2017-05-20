@@ -3,6 +3,8 @@ package controllers
 import (
 	"beeblog/models"
 	"github.com/astaxie/beego"
+	"path"
+	"strings"
 )
 
 type TopicController struct {
@@ -33,11 +35,24 @@ func (this *TopicController) Post() {
 	label := this.GetString("label")
 	id := this.GetString("id")
 
-	var err error
-	if len(id) == 0 {
-		err = models.AddTopic(title, category, label, content)
+	var attachment string
+	_, fileheader, err := this.GetFile("attachment")
+	if err == nil {
+		attachment = fileheader.Filename
+		// 拷贝文件到指定目录
+		beego.Info(attachment)
+		err = this.SaveToFile("attachment", path.Join("attachment", attachment))
+		if err != nil {
+			beego.Error(err)
+		}
 	} else {
-		err = models.ModifyTopic(id, title, category, label, content)
+		beego.Error(err)
+	}
+
+	if len(id) == 0 {
+		err = models.AddTopic(title, category, label, content, attachment)
+	} else {
+		err = models.ModifyTopic(id, title, category, label, content, attachment)
 	}
 
 	if err != nil {
@@ -65,6 +80,7 @@ func (this *TopicController) View() {
 	} else {
 		this.Data["Topic"] = topic
 		this.Data["Tid"] = id
+		this.Data["Labels"] = strings.Split(topic.Label, " ")
 	}
 
 	replies, err := models.GetRepliesByTopicId(id)

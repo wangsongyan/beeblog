@@ -108,7 +108,7 @@ func GetAllCategories() ([]*Category, error) {
 }
 
 // 文章
-func AddTopic(title, category, label, content string) error {
+func AddTopic(title, category, label, content, attachment string) error {
 
 	if len(label) > 0 {
 		label = "$" + strings.Join(strings.Split(label, " "), "#$") + "#"
@@ -118,12 +118,13 @@ func AddTopic(title, category, label, content string) error {
 	o := orm.NewOrm()
 
 	topic := &Topic{
-		Title:    title,
-		Category: category,
-		Label:    label,
-		Content:  content,
-		Created:  time.Now(),
-		Updated:  time.Now(),
+		Title:      title,
+		Category:   category,
+		Label:      label,
+		Content:    content,
+		Created:    time.Now(),
+		Updated:    time.Now(),
+		Attachment: attachment,
 	}
 
 	_, err := o.Insert(topic)
@@ -196,7 +197,7 @@ func GetTopic(id string) (*Topic, error) {
 	return topic, err
 }
 
-func ModifyTopic(id, title, category, label, content string) error {
+func ModifyTopic(id, title, category, label, content, attachment string) error {
 
 	if len(label) > 0 {
 		label = "$" + strings.Join(strings.Split(label, " "), "#$") + "#"
@@ -213,10 +214,11 @@ func ModifyTopic(id, title, category, label, content string) error {
 		Id: tid,
 	}
 
-	var oldcategory string
+	var oldcategory, oldattachment string
 	if err = o.Read(topic); err == nil {
 		// 先获取原分类
 		oldcategory = topic.Category
+		oldattachment = topic.Attachment
 		topic.Title = title
 		topic.Category = category
 		topic.Label = label
@@ -225,6 +227,10 @@ func ModifyTopic(id, title, category, label, content string) error {
 		if _, err = o.Update(topic); err != nil {
 			return err
 		}
+	}
+
+	if len(oldattachment) > 0 && oldattachment != attachment {
+		os.Remove(path.Join("attachment", attachment))
 	}
 
 	// 如果分类变化后，修改文章计数
