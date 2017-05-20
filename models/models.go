@@ -1,9 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/UnKnwon/com"
@@ -33,6 +35,7 @@ type Topic struct {
 	Content         string `orm:"size(5000)"`
 	Attachment      string
 	Category        string
+	Label           string
 	Created         time.Time `orm:"auto_now_add;type(datetime);index;"`
 	Updated         time.Time `orm:"auto_now;type(datetime);index"`
 	Views           int64     `orm:"index"`
@@ -105,13 +108,19 @@ func GetAllCategories() ([]*Category, error) {
 }
 
 // 文章
-func AddTopic(title, category, content string) error {
+func AddTopic(title, category, label, content string) error {
+
+	if len(label) > 0 {
+		label = "$" + strings.Join(strings.Split(label, " "), "#$") + "#"
+		fmt.Println(label)
+	}
 
 	o := orm.NewOrm()
 
 	topic := &Topic{
 		Title:    title,
 		Category: category,
+		Label:    label,
 		Content:  content,
 		Created:  time.Now(),
 		Updated:  time.Now(),
@@ -135,7 +144,7 @@ func AddTopic(title, category, content string) error {
 	return err
 }
 
-func GetAllTopics(isDesc bool, cate string) ([]*Topic, error) {
+func GetAllTopics(isDesc bool, cate, label string) ([]*Topic, error) {
 	o := orm.NewOrm()
 	topics := make([]*Topic, 0)
 	qs := o.QueryTable("topic")
@@ -143,6 +152,9 @@ func GetAllTopics(isDesc bool, cate string) ([]*Topic, error) {
 	if isDesc {
 		if len(cate) > 0 {
 			qs = qs.Filter("category", cate)
+		}
+		if len(label) > 0 {
+			qs = qs.Filter("label__contains", "$"+label+"#")
 		}
 		_, err = qs.OrderBy("-created").All(&topics)
 	} else {
@@ -173,10 +185,23 @@ func GetTopic(id string) (*Topic, error) {
 	}
 	topic.Views++
 	_, err = o.Update(topic)
+	if err == nil {
+		label := topic.Label
+		if len(label) > 0 {
+			label = label[1 : len(label)-1]
+			label = strings.Join(strings.Split(label, "#$"), " ")
+			topic.Label = label
+		}
+	}
 	return topic, err
 }
 
-func ModifyTopic(id, title, category, content string) error {
+func ModifyTopic(id, title, category, label, content string) error {
+
+	if len(label) > 0 {
+		label = "$" + strings.Join(strings.Split(label, " "), "#$") + "#"
+		fmt.Println(label)
+	}
 
 	tid, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -194,6 +219,7 @@ func ModifyTopic(id, title, category, content string) error {
 		oldcategory = topic.Category
 		topic.Title = title
 		topic.Category = category
+		topic.Label = label
 		topic.Content = content
 		topic.Updated = time.Now()
 		if _, err = o.Update(topic); err != nil {

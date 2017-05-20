@@ -13,7 +13,8 @@ func (c *HomeController) Get() {
 	c.Data["IsHome"] = true
 	c.Data["IsLogin"] = checkAccount(c.Ctx)
 	cate := c.GetString("cate")
-	topics, err := models.GetAllTopics(true, cate)
+	label := c.GetString("label")
+	topics, err := models.GetAllTopics(true, cate, label)
 	if err != nil {
 		beego.Error(err)
 	} else {
