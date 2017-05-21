@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>国际化支持</title>
+</head>
+<body>
+
+{{.Lang}}
+{{.hi}}
+{{.hey}}
+
+{{i18n .Lang .hi}}
+{{i18n .Lang .hey}}
+
+{{i18n .Lang .about}}
+{{i18n .Lang "about.about"}}
+
+</body>
+</html>
